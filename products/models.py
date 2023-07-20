@@ -1,10 +1,11 @@
 from django.db import models
-
+from django_extensions.db.models import TimeStampedModel
 from users.models import User
+from typing import List, Tuple
 
 
 # Create your models here.
-class Category(models.Model):
+class Category(TimeStampedModel):
     """model for the categories."""
     name = models.CharField(max_length=50)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE)
@@ -16,8 +17,14 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def name_filters(cls) -> List[Tuple[str, str]]:
+        return [("", "Select")] + [(name, name) for name in sorted(list(
+                set(cls.objects.values_list('name', flat=True).exclude(
+                                           name=''))))]
 
-class Product(models.Model):
+
+class Product(TimeStampedModel):
     """
     Create Product table for Products.
     """
